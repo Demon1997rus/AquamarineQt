@@ -4,6 +4,7 @@
 #include <QMessageBox>
 
 #include "widgets/mainwindow.h"
+#include "utils/frameless.h"
 
 int main(int argc, char* argv[])
 {
@@ -27,8 +28,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    MainWindow window(Qt::FramelessWindowHint);
+    MainWindow window;
+    FrameLess frame(&window);
     window.show();
-
+    Q_UNUSED(frame)
     return app.exec();
 }

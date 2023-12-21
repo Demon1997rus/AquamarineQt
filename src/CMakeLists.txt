@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.12)
 
+SET(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "" FORCE)
+
 project(AquamarineQt)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

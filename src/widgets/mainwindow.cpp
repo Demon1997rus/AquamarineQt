@@ -5,14 +5,21 @@
 #include <QApplication>
 #include <QDesktopWidget>
 
-MainWindow::MainWindow(Qt::WindowFlags f, QWidget* parent) : QWidget(parent, f)
+MainWindow::MainWindow(QWidget* parent) : QWidget(parent)
 {
+    initWidgets();
     setWindowSettings();
+    setupLayout();
     initializingConnections();
 }
 
 /*!
- * \brief MainWindow::setWindowSettings - установка настроек формы
+ * \brief MainWindow::initWidgets - инициализация виджетов экранной формы
+ */
+void MainWindow::initWidgets() { mainLayout = new QGridLayout(this); }
+
+/*!
+ * \brief MainWindow::setWindowSettings - установка настроек формы и её виджетов
  */
 void MainWindow::setWindowSettings()
 {
@@ -23,6 +30,11 @@ void MainWindow::setWindowSettings()
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, QSize(1152, 864),
                                     qApp->desktop()->availableGeometry()));
 }
+
+/*!
+ * \brief MainWindow::setupLayout - установка настроек слоя
+ */
+void MainWindow::setupLayout() { setLayout(mainLayout); }
 
 /*!
  * \brief MainWindow::initializingConnections - инициализация connect-ов
