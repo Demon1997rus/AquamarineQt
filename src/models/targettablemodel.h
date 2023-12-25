@@ -3,6 +3,9 @@
 
 #include <QAbstractTableModel>
 
+/*!
+ * \brief The TargetTableModel class - табличная модель для отображения данных по целям
+ */
 class TargetTableModel : public QAbstractTableModel
 {
 public:

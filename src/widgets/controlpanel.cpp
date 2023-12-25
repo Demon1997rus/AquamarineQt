@@ -29,7 +29,8 @@ void ControlPanel::controlPanelSettings()
     tableView->setModel(model);
 
     // Размер заголовков согласно содержимому
-    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+    tableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void ControlPanel::setupLayout()
