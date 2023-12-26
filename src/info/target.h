@@ -23,6 +23,9 @@ public:
     int getId() const;
     double getDistance() const;
     double getBearing() const;
+    QColor getColor() const;
+    QPointF getPosition() const;
+    const QList<QPointF>& getHistory() const;
 
     // Изменение данных по цели
 public:
@@ -31,7 +34,7 @@ public:
 private:
     int id;           // Уникальный идентификатор цели
     double distance;  // Дистанция до цели от центра круга (м)
-    double bearing;  //Пеленг относительно центра круга(градусы)
+    double bearing;  // Пеленг относительно центра круга(градусы)
     QColor color;    // Цвет
     QPointF position;        //Текущая позиция
     QList<QPointF> history;  // История движения

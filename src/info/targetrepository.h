@@ -18,6 +18,11 @@ public:
 
 public:
     const Target& at(int index) const;
+    QVector<Target>::iterator begin();
+    QVector<Target>::const_iterator begin() const;
+    QVector<Target>::iterator end();
+    QVector<Target>::const_iterator end() const;
+
     void generateTarget();
     void updateTargets();
     int size() const;

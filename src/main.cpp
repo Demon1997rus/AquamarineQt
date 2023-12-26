@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QLockFile>
 #include <QMessageBox>
+#include <QDebug>
 
 #include "widgets/mainwindow.h"
 #include "utils/frameless.h"

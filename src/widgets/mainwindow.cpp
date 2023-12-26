@@ -80,4 +80,8 @@ void MainWindow::setupLayout()
 void MainWindow::initializingConnections()
 {
     connect(pbClose, &QPushButton::clicked, this, &MainWindow::close);
+
+    connect(controlPanel, &ControlPanel::startImitation, mapWidget, &MapWidget::startImitation);
+
+    connect(controlPanel, &ControlPanel::stopImitation, mapWidget, &MapWidget::stopImitation);
 }

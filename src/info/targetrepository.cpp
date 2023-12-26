@@ -25,6 +25,9 @@ void TargetRepository::generateTarget()
  */
 void TargetRepository::updateTargets()
 {
+    if (targets.isEmpty())
+        return;
+
     for (Target& target : targets)
     {
         double angleChange = randomGenerator.generateRandomDouble(-45.0, 45.0);
@@ -35,6 +38,14 @@ void TargetRepository::updateTargets()
 }
 
 const Target& TargetRepository::at(int index) const { return targets.at(index); }
+
+QVector<Target>::iterator TargetRepository::begin() { return targets.begin(); }
+
+QVector<Target>::const_iterator TargetRepository::begin() const { return targets.begin(); }
+
+QVector<Target>::iterator TargetRepository::end() { return targets.end(); }
+
+QVector<Target>::const_iterator TargetRepository::end() const { return targets.end(); }
 
 int TargetRepository::size() const { return targets.size(); }
 

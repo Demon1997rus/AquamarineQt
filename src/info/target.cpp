@@ -45,6 +45,12 @@ double Target::getDistance() const { return distance; }
 
 double Target::getBearing() const { return bearing; }
 
+const QList<QPointF>& Target::getHistory() const { return history; }
+
+QPointF Target::getPosition() const { return position; }
+
+QColor Target::getColor() const { return color; }
+
 void Target::updatePosition(double distanceChange, double angleChange)
 {
     // Обновляем угол

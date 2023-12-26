@@ -11,6 +11,11 @@ TargetTableModel::TargetTableModel(QObject* parent) : QAbstractTableModel(parent
     headers << "№ цели";
     headers << "Дистанция до цели\nот центра круга (м)";
     headers << "Пеленг\nотносительно\nцентра круга\n(градусы)";
+    connect(&DATA, &TargetRepository::updateRepository, [this]() {
+        QModelIndex topLeft = createIndex(0, 0);
+        QModelIndex bottomRight = createIndex(DATA.size() - 1, 2);
+        emit dataChanged(topLeft, bottomRight);
+    });
 }
 
 int TargetTableModel::rowCount(const QModelIndex& parent) const
