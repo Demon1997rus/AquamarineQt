@@ -5,6 +5,7 @@
 
 #include "widgets/mainwindow.h"
 #include "utils/frameless.h"
+#include "info/targetrepository.h"
 
 int main(int argc, char* argv[])
 {

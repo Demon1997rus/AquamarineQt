@@ -41,7 +41,7 @@ QVariant TargetTableModel::data(const QModelIndex& index, int role) const
             case 1:
                 return DATA.at(index.row()).getDistance();
             case 2:
-                return DATA.at(index.row()).getPeleng();
+                return DATA.at(index.row()).getBearing();
         }
     }
     return QVariant();

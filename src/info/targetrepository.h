@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 
+#include "utils/randomgenerator.h"
 #include "target.h"
 
 /*!
@@ -16,9 +17,13 @@ public:
     static TargetRepository& instance();  // Singleton
 
 public:
-    void add(const Target& target);
     const Target& at(int index) const;
+    void generateTarget();
+    void updateTargets();
     int size() const;
+
+signals:
+    void updateRepository();
 
 private:
     void sortingByDistance();
@@ -29,6 +34,7 @@ private:
 
 private:
     QVector<Target> targets;
+    RandomGenerator randomGenerator;
 };
 
 #endif  // TARGETREPOSITORY_H
