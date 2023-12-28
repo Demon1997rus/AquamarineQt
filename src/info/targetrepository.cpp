@@ -6,46 +6,31 @@ TargetRepository& TargetRepository::instance()
     return instance;
 }
 
-/*!
- * \brief TargetRepository::generateTarget - генерация новой цели
- */
 void TargetRepository::generateTarget()
 {
-    double initialDistance = randomGenerator.generateRandomDouble(0.0, 200.0);
-    double initialBearing = randomGenerator.generateRandomDouble(0.0, 360.0);
-    QColor initialColor = randomGenerator.generateRandomColor();
-    Target newTarget(initialDistance, initialBearing, initialColor);
-    targets.append(qMove(newTarget));
-    sortingByDistance();
-    emit updateRepository();
-}
-
-/*!
- * \brief TargetRepository::updateTargets - обновление целей
- */
-void TargetRepository::updateTargets()
-{
-    if (targets.isEmpty())
-        return;
-
-    for (Target& target : targets)
-    {
-        double angleChange = randomGenerator.generateRandomDouble(-45.0, 45.0);
-        target.updatePosition(20.0, angleChange);
-    }
+    qDebug() << "Генерация цели";
+    double distance = randomGenerator.generateRandomDouble(1., 200.);
+    double heading = randomGenerator.generateRandomDouble(0., 360.);
+    double bearing = randomGenerator.generateRandomDouble(0., 360.);
+    QColor color = randomGenerator.generateRandomColor();
+    Target target(distance, heading, bearing, color);
+    qDebug() << target;
+    targets.append(qMove(target));
     sortingByDistance();
     emit updateRepository();
 }
 
 const Target& TargetRepository::at(int index) const { return targets.at(index); }
 
-QVector<Target>::iterator TargetRepository::begin() { return targets.begin(); }
+void TargetRepository::clear()
+{
+    targets.clear();
+    targets.squeeze();
+    Target::resetCounter();
+    emit updateRepository();
+}
 
-QVector<Target>::const_iterator TargetRepository::begin() const { return targets.begin(); }
-
-QVector<Target>::iterator TargetRepository::end() { return targets.end(); }
-
-QVector<Target>::const_iterator TargetRepository::end() const { return targets.end(); }
+const QVector<Target>& TargetRepository::getTargets() const { return targets; }
 
 int TargetRepository::size() const { return targets.size(); }
 

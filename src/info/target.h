@@ -1,9 +1,10 @@
 #ifndef TARGET_H
 #define TARGET_H
 
-#include <QPointF>
 #include <QColor>
-#include <QList>
+#include <QPointF>
+#include <QQueue>
+#include <QDebug>
 
 /*!
  * \brief The Target class - класс цели
@@ -11,36 +12,46 @@
 class Target
 {
 public:
-    Target();
-    Target(double _distance, double _bearing, const QColor& _color);
+    Target() = default;
+    Target(double _distance, double _heading, double _bearing, const QColor& _color);
     Target(const Target& other);
     Target(Target&& other) Q_DECL_NOTHROW;
     Target& operator=(const Target& other);
     Target& operator=(Target&& other) Q_DECL_NOTHROW;
 
-    //геттеры
+    // геттеры
 public:
     int getId() const;
     double getDistance() const;
+    double getHeading() const;
     double getBearing() const;
-    QColor getColor() const;
-    QPointF getPosition() const;
-    const QList<QPointF>& getHistory() const;
+    const QColor& getColor() const;
+    const QPointF& getPosition() const;
+    const QQueue<QPointF>& getHistory() const;
 
-    // Изменение данных по цели
+    // Изменение состояние объекта
 public:
-    void updatePosition(double distanceChange, double angleChange);
+    static void resetCounter();
+
+    // friend
+public:
+    friend QDebug operator<<(QDebug debug, const Target& other);
 
 private:
-    int id;           // Уникальный идентификатор цели
-    double distance;  // Дистанция до цели от центра круга (м)
-    double bearing;  // Пеленг относительно центра круга(градусы)
-    QColor color;    // Цвет
-    QPointF position;        //Текущая позиция
-    QList<QPointF> history;  // История движения
+    int id;           // Уникальный идентификатор
+    double distance;  // Дистанция до корабля от центра круга в метрах
+    double heading;  // Курс корабля относительно центра круга (градусы)
+    double bearing;  // Пеленг относительно центра круга (градусы)
+    QColor color;    // Цвет корабля
+    QPointF position;         // Текущая позиция
+    QQueue<QPointF> history;  // История перемещения
 
 private:
-    static int ID;  // автоинкремент для уникальности идентификатора цели
+    /*
+        "На всякий случай" - если считать что идентификаторы выдаются раз в 10 секунд, то закончатся
+       они через 58496450 тысяч лет)
+    */
+    static unsigned long long int ID;  // Выдача уникального идентификатора
 };
 
 #endif  // TARGET_H

@@ -12,8 +12,9 @@ public:
     RandomGenerator();
 
 public:
-    double generateRandomDouble(double min, double max);
-    QColor generateRandomColor();
+    double generateRandomDouble(double min, double max) const;
+    QColor generateRandomColor() const;
+    int generateRandomInt(int min, int max) const;
 };
 
 #endif  // RANDOMGENERATOR_H

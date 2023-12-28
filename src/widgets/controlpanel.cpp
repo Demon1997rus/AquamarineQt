@@ -22,10 +22,12 @@ void ControlPanel::initWidgets()
     model = new TargetTableModel(this);
     pbImitation = new QPushButton("Имитация", this);
     pbPause = new QPushButton("Пауза", this);
+    pbClose = new QPushButton("Выход", this);
+    pbClearImitation = new QPushButton("Очистить", this);
 }
 
 /*!
- * \brief ControlPanel::controlPanelSettings - настройки панель управления
+ * \brief ControlPanel::controlPanelSettings - настройки панели управления
  */
 void ControlPanel::controlPanelSettings()
 {
@@ -45,12 +47,16 @@ void ControlPanel::setupLayout()
     // Добавляем кнопки управления на вертикальный слой
     horizontalLayout->addWidget(pbImitation);
     horizontalLayout->addWidget(pbPause);
+    horizontalLayout->addWidget(pbClearImitation);
 
     // Добавляем таблицу с целями на слой
     mainLayout->addWidget(tableView);
 
     // Добавляем вертикальный слой с кнопками
     mainLayout->addLayout(horizontalLayout, 1, 0);
+
+    // Добавляем кнопку "Выход"
+    mainLayout->addWidget(pbClose);
 
     // Установка главного слоя
     setLayout(mainLayout);
@@ -71,4 +77,8 @@ void ControlPanel::initializingConnections()
     connect(pbImitation, &QPushButton::clicked, this, &ControlPanel::startImitation);
 
     connect(pbPause, &QPushButton::clicked, this, &ControlPanel::stopImitation);
+
+    connect(pbClose, &QPushButton::clicked, this, &ControlPanel::allClose);
+
+    connect(pbClearImitation, &QPushButton::clicked, this, &ControlPanel::clearImitation);
 }

@@ -22,7 +22,6 @@ void MainWindow::initWidgets()
     horizontalLayout = new QHBoxLayout();
     verticalLayout = new QVBoxLayout();
     widgetTime = new WidgetTime(this);
-    pbClose = new QPushButton("Выход", this);
     controlPanel = new ControlPanel(this);
     mapWidget = new MapWidget(this);
 }
@@ -60,9 +59,8 @@ void MainWindow::setupLayout()
     horizontalLayout->addWidget(mapWidget);
     horizontalLayout->addWidget(controlPanel);
 
-    // Добавляем виджет времени и кнопку "Выход" на вертикальный слой
+    // Добавляем виджет времени и на вертикальный слой
     verticalLayout->addWidget(widgetTime);
-    verticalLayout->addWidget(pbClose);
 
     // Добавляем горизонтальный и вертикальный на основной слой
     // Также вжимаем вертикальный слой вниз
@@ -79,9 +77,11 @@ void MainWindow::setupLayout()
  */
 void MainWindow::initializingConnections()
 {
-    connect(pbClose, &QPushButton::clicked, this, &MainWindow::close);
-
     connect(controlPanel, &ControlPanel::startImitation, mapWidget, &MapWidget::startImitation);
 
     connect(controlPanel, &ControlPanel::stopImitation, mapWidget, &MapWidget::stopImitation);
+
+    connect(controlPanel, &ControlPanel::clearImitation, mapWidget, &MapWidget::clearImitation);
+
+    connect(controlPanel, &ControlPanel::allClose, this, &MainWindow::close);
 }

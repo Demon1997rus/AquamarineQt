@@ -17,6 +17,8 @@ public:
 signals:
     void startImitation();
     void stopImitation();
+    void allClose();
+    void clearImitation();
 
 private:
     void initWidgets();
@@ -31,6 +33,8 @@ private:
     TargetTableModel* model = Q_NULLPTR;
     QPushButton* pbImitation = Q_NULLPTR;
     QPushButton* pbPause = Q_NULLPTR;
+    QPushButton* pbClose = Q_NULLPTR;
+    QPushButton* pbClearImitation = Q_NULLPTR;
 };
 
 #endif  // CONTROLPANEL_H

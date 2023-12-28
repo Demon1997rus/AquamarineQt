@@ -31,7 +31,6 @@ private:
     QHBoxLayout* horizontalLayout = Q_NULLPTR;
     QVBoxLayout* verticalLayout = Q_NULLPTR;
     WidgetTime* widgetTime = Q_NULLPTR;
-    QPushButton* pbClose = Q_NULLPTR;
     ControlPanel* controlPanel = Q_NULLPTR;
     MapWidget* mapWidget = Q_NULLPTR;
 };

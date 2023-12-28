@@ -1,21 +1,14 @@
 #include "targettablemodel.h"
 
-#include "info/targetrepository.h"
-
 #include <QDebug>
 
-#define DATA TargetRepository::instance()
-
-TargetTableModel::TargetTableModel(QObject* parent) : QAbstractTableModel(parent)
+TargetTableModel::TargetTableModel(QObject* parent)
+  : QAbstractTableModel(parent), m_data(TargetRepository::instance())
 {
-    headers << "№ цели";
-    headers << "Дистанция до цели\nот центра круга (м)";
-    headers << "Пеленг\nотносительно\nцентра круга\n(градусы)";
-    connect(&DATA, &TargetRepository::updateRepository, [this]() {
-        QModelIndex topLeft = createIndex(0, 0);
-        QModelIndex bottomRight = createIndex(DATA.size() - 1, 2);
-        emit dataChanged(topLeft, bottomRight);
-    });
+    m_headers << "№ цели";
+    m_headers << "Дистанция до цели\nот центра круга (м)";
+    m_headers << "Пеленг\nотносительно\nцентра круга\n(градусы)";
+    connect(&m_data, &TargetRepository::updateRepository, this, &TargetTableModel::updateModel);
 }
 
 int TargetTableModel::rowCount(const QModelIndex& parent) const
@@ -27,7 +20,7 @@ int TargetTableModel::rowCount(const QModelIndex& parent) const
 int TargetTableModel::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent)
-    return headers.size();
+    return m_headers.size();
 }
 
 QVariant TargetTableModel::data(const QModelIndex& index, int role) const
@@ -37,16 +30,16 @@ QVariant TargetTableModel::data(const QModelIndex& index, int role) const
         return QVariant();
     }
 
-    if (index.row() < DATA.size())
+    if (index.row() < m_data.size())
     {
         switch (index.column())
         {
             case 0:
-                return DATA.at(index.row()).getId();
+                return m_data.at(index.row()).getId();
             case 1:
-                return DATA.at(index.row()).getDistance();
+                return m_data.at(index.row()).getDistance();
             case 2:
-                return DATA.at(index.row()).getBearing();
+                return m_data.at(index.row()).getBearing();
         }
     }
     return QVariant();
@@ -54,10 +47,27 @@ QVariant TargetTableModel::data(const QModelIndex& index, int role) const
 
 QVariant TargetTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+    if (role != Qt::DisplayRole)
     {
-        return headers.at(section);
+        return QVariant();
+    }
+
+    if (orientation == Qt::Horizontal)
+    {
+        return m_headers.at(section);
     }
     return QVariant();
 }
-#undef DATA
+
+/*!
+ * \brief TargetTableModel::updateModel - обновление модели
+ */
+void TargetTableModel::updateModel()
+{
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(rowCount(QModelIndex()) - 1, columnCount(QModelIndex()) - 1);
+    if (topLeft.isValid() && bottomRight.isValid())
+    {
+        emit dataChanged(topLeft, bottomRight);
+    }
+}

@@ -6,6 +6,9 @@
 #include <QPainter>
 #include <QTimer>
 
+#include "utils/randomgenerator.h"
+#include "info/targetrepository.h"
+
 class MapWidget : public QFrame
 {
     Q_OBJECT
@@ -15,6 +18,7 @@ public:
 public slots:
     void startImitation();
     void stopImitation();
+    void clearImitation();
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -26,7 +30,10 @@ private:
 
 private:
     QTimer timer;
-    int timerCounter;  // счетчик для подсчета срабатываний таймера
+    RandomGenerator randomGenerator;
+    TargetRepository& data;
+    int timerCounter = 19;
+    const int stepCircle = 200;
 
 private slots:
     void updateImitation();

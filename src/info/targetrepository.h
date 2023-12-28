@@ -17,14 +17,12 @@ public:
     static TargetRepository& instance();  // Singleton
 
 public:
-    const Target& at(int index) const;
-    QVector<Target>::iterator begin();
-    QVector<Target>::const_iterator begin() const;
-    QVector<Target>::iterator end();
-    QVector<Target>::const_iterator end() const;
-
     void generateTarget();
-    void updateTargets();
+
+public:
+    const Target& at(int index) const;
+    void clear();
+    const QVector<Target>& getTargets() const;
     int size() const;
 
 signals:
@@ -34,10 +32,8 @@ private:
     void sortingByDistance();
 
 private:
-    Q_DISABLE_COPY(TargetRepository)
     TargetRepository() = default;
-
-private:
+    Q_DISABLE_COPY(TargetRepository)
     QVector<Target> targets;
     RandomGenerator randomGenerator;
 };

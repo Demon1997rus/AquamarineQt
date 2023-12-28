@@ -2,15 +2,15 @@
 
 #include <QtMath>
 
-Target::Target() : Target(0.0, 0.0, QColor()) {}
+unsigned long long int Target::ID = 0;
 
-Target::Target(double _distance, double _bearing, const QColor& _color)
-  : distance(_distance), bearing(_bearing), color(_color)
+Target::Target(double _distance, double _heading, double _bearing, const QColor& _color)
+  : distance(_distance), heading(_heading), bearing(_bearing), color(_color)
 {
-    this->id = ++ID;
-    position.setX(distance * qCos(qDegreesToRadians(bearing)));
-    position.setY(distance * qSin(qDegreesToRadians(bearing)));
-    history.append(position);
+    id = ++ID;
+    position.setX(qCos(qDegreesToRadians(bearing)) * distance);
+    position.setY(qSin(qDegreesToRadians(bearing)) * distance);
+    history.enqueue(position);
 }
 
 Target::Target(const Target& other) { *this = other; }
@@ -21,6 +21,7 @@ Target& Target::operator=(const Target& other)
 {
     id = other.id;
     distance = other.distance;
+    heading = other.heading;
     bearing = other.bearing;
     color = other.color;
     position = other.position;
@@ -32,6 +33,7 @@ Target& Target::operator=(Target&& other) Q_DECL_NOTHROW
 {
     id = other.id;
     distance = other.distance;
+    heading = other.heading;
     bearing = other.bearing;
     color = qMove(other.color);
     position = other.position;
@@ -43,44 +45,28 @@ int Target::getId() const { return id; }
 
 double Target::getDistance() const { return distance; }
 
+double Target::getHeading() const { return heading; }
+
 double Target::getBearing() const { return bearing; }
 
-const QList<QPointF>& Target::getHistory() const { return history; }
+const QColor& Target::getColor() const { return color; }
 
-QPointF Target::getPosition() const { return position; }
+const QPointF& Target::getPosition() const { return position; }
 
-QColor Target::getColor() const { return color; }
+const QQueue<QPointF>& Target::getHistory() const { return history; }
 
-void Target::updatePosition(double distanceChange, double angleChange)
+void Target::resetCounter() { ID = 0; }
+
+QDebug operator<<(QDebug debug, const Target& other)
 {
-    // Обновляем угол
-    bearing += angleChange;
-
-    // Нормализуем если вышел за пределы 360 градусов
-    bearing = fmod(bearing, 360.0);
-    if (bearing < 0)
-    {
-        bearing += 360.0;
-    }
-
-    // Обновляем дистанцию
-    distance += distanceChange;
-
-    // Гарантия того, что дистанция не будет отрицательной
-    distance = qMax(distance, 0.0);
-
-    // Обновляем позицию цели
-    position.setX(distance * qCos(qDegreesToRadians(bearing)));
-    position.setY(distance * qSin(qDegreesToRadians(bearing)));
-
-    // Добавляем новую позицию в историю
-    history.prepend(position);
-
-    // Ограничиваем количество точек до 3 последних положений цели
-    if (history.size() > 3)
-    {
-        history.removeLast();
-    }
+    QDebugStateSaver saver(debug);
+    Q_UNUSED(saver)
+    debug << "Идентификатор:" << other.id;
+    debug << "Дистанция:" << other.distance;
+    debug << "Курс:" << other.heading;
+    debug << "Пеленг:" << other.bearing;
+    debug << "Цвет:" << other.color;
+    debug << "Текущая позиция:" << other.position;
+    debug << "История перемещения:" << other.history;
+    return debug;
 }
-
-int Target::ID = 0;

@@ -3,16 +3,17 @@
 #include <QDebug>
 #include <QtMath>
 
-#include "info/targetrepository.h"
+#include "utils/angle.h"
 
-#define DATA TargetRepository::instance()
-
-MapWidget::MapWidget(QWidget* parent) : QFrame(parent), timer(this)
+MapWidget::MapWidget(QWidget* parent)
+  : QFrame(parent), timer(this), data(TargetRepository::instance())
 {
     connect(&timer, &QTimer::timeout, this, &MapWidget::updateImitation);
-    timerCounter = 19;  // Устанавливаем для генераций цели при начале имитаций сразу
 }
 
+/*!
+ * \brief MapWidget::startImitation - запуск имитаций
+ */
 void MapWidget::startImitation()
 {
     if (!timer.isActive())
@@ -21,6 +22,9 @@ void MapWidget::startImitation()
     }
 }
 
+/*!
+ * \brief MapWidget::stopImitation - остановка имитаций
+ */
 void MapWidget::stopImitation()
 {
     if (timer.isActive())
@@ -29,13 +33,26 @@ void MapWidget::stopImitation()
     }
 }
 
+/*!
+ * \brief MapWidget::clearImitation - очистка имитаций
+ */
+void MapWidget::clearImitation()
+{
+    data.clear();
+    timerCounter = 19;  // выставляем чтобы после очистки сразу сгенерировалась новая цель
+    update();
+}
+
 void MapWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-
     drawBackground(painter);
+    // Для отрисовки остального переводим начала координат в центр и поворачиваем виджет на -90 для
+    // того чтобы условный "Север" был вверху
+    painter.translate(width() / 2, height() / 2);
+    painter.rotate(-90);
     drawMap(painter);
     drawTargets(painter);
 }
@@ -51,7 +68,7 @@ void MapWidget::drawBackground(QPainter& painter)
     {
         for (int x = 0; x < width(); ++x)
         {
-            int brightness = qrand() % 81;  // Яркость от 0 до 80
+            int brightness = randomGenerator.generateRandomInt(0, 80);  // Яркость от 0 до 80
             noiseImage.setPixel(x, y, qRgb(brightness, brightness, brightness));
         }
     }
@@ -63,32 +80,31 @@ void MapWidget::drawBackground(QPainter& painter)
  */
 void MapWidget::drawMap(QPainter& painter)
 {
-    // Рассчитываем центр и радиус основной окружности
-    int centerX = width() / 2;
-    int centerY = height() / 2;
-    int maxDistance = 1000;
-    int step = 200;
-
-    // Рисуем окружности
-    int additionalCircleCount = maxDistance / step;
-    for (int i = 1; i <= additionalCircleCount; i++)
+    /*
+        Вписанные в свободное пространство окружности с шагом в 200м по
+        дистанции и одну окружность по максимально доступному радиусу в отведенном
+        свободном пространстве, которая выделена другим цветом.
+    */
+    QPointF center(0, 0);
+    int maxRadius = qMin(width(), height()) / 2;
+    painter.setPen(Qt::black);
+    for (int radius = stepCircle; radius < maxRadius; radius += stepCircle)
     {
-        int radius = i * centerX * step / maxDistance;
-        painter.setPen(Qt::black);
-        if (i == additionalCircleCount)
-        {
-            painter.setPen(Qt::red);  // Цвет для последней окружности
-        }
-        painter.drawEllipse(centerX - radius, centerY - radius, radius * 2, radius * 2);
+        painter.drawEllipse(center, radius, radius);
     }
+    painter.setPen(Qt::red);
+    painter.drawEllipse(center, maxRadius, maxRadius);
 
-    // Рисуем линии
+    /*
+        От центра круга с шагом 45 градусов по радиусу отрисовать пунктирные линии до
+        границ круга (оси)
+   */
     painter.setPen(Qt::black);
     for (double angle = 0; angle < 360; angle += 45)
     {
-        int x = centerX + width() / 2 * qCos(qDegreesToRadians(angle));
-        int y = centerY - width() / 2 * qSin(qDegreesToRadians(angle));
-        painter.drawLine(centerX, centerY, x, y);
+        int x = qRound(maxRadius * qCos(qDegreesToRadians(angle)));
+        int y = qRound(maxRadius * qSin(qDegreesToRadians(angle)));
+        painter.drawLine(0, 0, x, y);
     }
 }
 
@@ -97,31 +113,59 @@ void MapWidget::drawMap(QPainter& painter)
  */
 void MapWidget::drawTargets(QPainter& painter)
 {
-    for (const Target& target : DATA)
+    //              N(x)
+    //               |
+    //               |
+    //               |
+    // W(-y) --------*-------- E(y)
+    //               |
+    //               |
+    //               |
+    //              S(-x)
+
+    for (const Target& target : data.getTargets())
     {
-        // Вычисляем координаты цели
-        int centerX = width() / 2;
-        int centerY = height() / 2;
-        double x = centerX + target.getPosition().x();
-        double y = centerY - target.getPosition().y();
+        // 1) Сохраняем состояние в котором находится QPainter
+        painter.save();
 
-        // Рисуем цель
-        painter.setPen(QPen(target.getColor(), 2));
-        painter.setBrush(target.getColor());
-        painter.drawEllipse(QPointF(x, y), 10, 10);  // Регулировка размера
+        // 2) Смещаемся к текущей позиций цели
+        painter.translate(target.getPosition());
 
-        // Рисуем историю движения
-        painter.setPen(QPen(target.getColor(), 1, Qt::DashLine));
-        for (int i = 1; i < target.getHistory().size(); ++i)
-        {
-            QPointF prev = target.getHistory().at(i - 1);
-            QPointF current = target.getHistory().at(i);
-            prev.setX(centerX + prev.x());
-            prev.setY(centerY - prev.y());
-            current.setX(centerX + current.x());
-            current.setY(centerY - current.y());
-            painter.drawLine(prev, current);
-        }
+        // 3) Начинаем отрисовку цели
+        /*
+            Условно отображаемая равнобедренным треугольником с углами (30,75, 75 градусов)
+            При этом острый угол треугольника цели должен быть направлен в сторону ее движения.
+        */
+        painter.setPen(target.getColor());
+
+        // За вершину треугольника с острым углом, я буду принимать позицию цели
+        double sharpAngle = 30.0;  // Острый угол
+        double sideLength = 20.0;  // Размер стороны равнобедренного треугольника
+        double offset = (360 - sharpAngle) / 2;  // Смещение от острого угла
+
+        // Далее мы получаем угол (смещение + направление цели) + нормализация углов, а то выйдем за
+        // пределы 360 градусов
+        double angle1 = Angle::normalizeAngle360(offset + target.getHeading());
+        double angle2 =
+            Angle::normalizeAngle360(Angle::normalizeAngle360(-offset) + target.getHeading());
+
+        // Получим все три точки треугольника
+        QPointF point1;
+        point1.setX(0);
+        point1.setY(0);
+
+        QPointF point2;
+        point2.setX(qCos(qDegreesToRadians(angle1)) * sideLength);
+        point2.setY(qSin(qDegreesToRadians(angle1)) * sideLength);
+
+        QPointF point3;
+        point3.setX(qCos(qDegreesToRadians(angle2)) * sideLength);
+        point3.setY(qSin(qDegreesToRadians(angle2)) * sideLength);
+
+        painter.drawPolygon(QPolygonF() << point1 << point2 << point3);
+
+        // Возращаемся к обратному состоянию после отрисовки цели
+        painter.restore();
     }
 }
 
@@ -131,11 +175,14 @@ void MapWidget::drawTargets(QPainter& painter)
 void MapWidget::updateImitation()
 {
     ++timerCounter;
-    DATA.updateTargets();
-    if (timerCounter >= 20)
+    if (timerCounter == 20)
     {
-        DATA.generateTarget();
-        timerCounter = 0;  // сбрасываем счётчик
+        /*
+            В случайном месте в пределах первого внутреннего 200м кольца сначала появляется
+            одна цель, каждые 10 секунд
+        */
+        data.generateTarget();
+        timerCounter = 0;
     }
     update();
 }
