@@ -125,17 +125,13 @@ void MapWidget::drawTargets(QPainter& painter)
 
     for (const Target& target : data.getTargets())
     {
-        // 1) Сохраняем состояние в котором находится QPainter
-        painter.save();
-
-        // 2) Смещаемся к текущей позиций цели
-        painter.translate(target.getPosition());
-
-        // 3) Начинаем отрисовку цели
         /*
             Условно отображаемая равнобедренным треугольником с углами (30,75, 75 градусов)
             При этом острый угол треугольника цели должен быть направлен в сторону ее движения.
         */
+        painter.save();
+        painter.translate(target.getPosition());
+
         painter.setPen(target.getColor());
 
         // За вершину треугольника с острым углом, я буду принимать позицию цели
@@ -149,7 +145,6 @@ void MapWidget::drawTargets(QPainter& painter)
         double angle2 =
             Angle::normalizeAngle360(Angle::normalizeAngle360(-offset) + target.getHeading());
 
-        // Получим все три точки треугольника
         QPointF point1;
         point1.setX(0);
         point1.setY(0);
@@ -164,8 +159,20 @@ void MapWidget::drawTargets(QPainter& painter)
 
         painter.drawPolygon(QPolygonF() << point1 << point2 << point3);
 
-        // Возращаемся к обратному состоянию после отрисовки цели
         painter.restore();
+
+        /*
+         *  Должна отображаться трасса цели в виде отрезков, соединяющих 3 последних
+         *  положения цели (по аналогии с игрой «змейка»)
+         */
+        painter.setPen(target.getColor());
+        const QQueue<QPointF>& history = target.getHistory();
+        for (int i = 1; i < history.size(); ++i)
+        {
+            painter.save();
+            painter.drawLine(history.at(i - 1), history.at(i));
+            painter.restore();
+        }
     }
 }
 
@@ -178,11 +185,17 @@ void MapWidget::updateImitation()
     if (timerCounter == 20)
     {
         /*
-            В случайном месте в пределах первого внутреннего 200м кольца сначала появляется
-            одна цель, каждые 10 секунд
-        */
+         *   В случайном месте в пределах первого внутреннего 200м кольца сначала появляется
+         *   одна цель, каждые 10 секунд
+         */
         data.generateTarget();
         timerCounter = 0;
     }
+    /*
+     *  Каждый цикл обновления информации цель смещается на 20м(!) в произвольном тангенциальном или
+     * радиальном направлении, кроме обратного направления ±45°(!). При этом острый угол
+     * треугольника цели должен быть направлен в сторону ее движения.
+     */
+    data.updateTargets();
     update();
 }

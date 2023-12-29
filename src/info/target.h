@@ -32,6 +32,7 @@ public:
     // Изменение состояние объекта
 public:
     static void resetCounter();
+    void updatePosition(double newHeading, double length);
 
     // friend
 public:

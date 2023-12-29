@@ -18,8 +18,7 @@ public:
 
 public:
     void generateTarget();
-
-public:
+    void updateTargets();
     const Target& at(int index) const;
     void clear();
     const QVector<Target>& getTargets() const;

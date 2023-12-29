@@ -57,6 +57,20 @@ const QQueue<QPointF>& Target::getHistory() const { return history; }
 
 void Target::resetCounter() { ID = 0; }
 
+void Target::updatePosition(double newHeading, double length)
+{
+    double dx = qCos(qDegreesToRadians(newHeading)) * length;  // Вычисление смещения по x
+    double dy = qSin(qDegreesToRadians(bearing)) * length;  // Вычисление смещения по y
+    position.rx() += dx;   // обновление координаты x
+    position.ry() += dy;   // Обновление координаты y
+    heading = newHeading;  // Обновление угла направления движения
+
+    // Вычисляем новую дистанцию по теореме пифагора
+    distance = qSqrt(qPow(position.x(), 2) + qPow(position.y(), 2));
+
+    ///////////////!!!!!!!!!!!!!
+}
+
 QDebug operator<<(QDebug debug, const Target& other)
 {
     QDebugStateSaver saver(debug);
