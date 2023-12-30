@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QtMath>
+#include <chrono>
 
 #include "utils/angle.h"
 
@@ -133,10 +134,11 @@ void MapWidget::drawTargets(QPainter& painter)
         painter.translate(target.getPosition());
 
         painter.setPen(target.getColor());
+        painter.setBrush(target.getColor());
 
         // За вершину треугольника с острым углом, я буду принимать позицию цели
         double sharpAngle = 30.0;  // Острый угол
-        double sideLength = 20.0;  // Размер стороны равнобедренного треугольника
+        double sideLength = 10.0;  // Размер стороны равнобедренного треугольника
         double offset = (360 - sharpAngle) / 2;  // Смещение от острого угла
 
         // Далее мы получаем угол (смещение + направление цели) + нормализация углов, а то выйдем за

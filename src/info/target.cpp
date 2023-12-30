@@ -1,6 +1,7 @@
 #include "target.h"
 
 #include <QtMath>
+#include "utils/angle.h"
 
 unsigned long long int Target::ID = 0;
 
@@ -60,7 +61,7 @@ void Target::resetCounter() { ID = 0; }
 void Target::updatePosition(double newHeading, double length)
 {
     double dx = qCos(qDegreesToRadians(newHeading)) * length;  // Вычисление смещения по x
-    double dy = qSin(qDegreesToRadians(bearing)) * length;  // Вычисление смещения по y
+    double dy = qSin(qDegreesToRadians(newHeading)) * length;  // Вычисление смещения по y
     position.rx() += dx;   // обновление координаты x
     position.ry() += dy;   // Обновление координаты y
     heading = newHeading;  // Обновление угла направления движения
@@ -68,7 +69,21 @@ void Target::updatePosition(double newHeading, double length)
     // Вычисляем новую дистанцию по теореме пифагора
     distance = qSqrt(qPow(position.x(), 2) + qPow(position.y(), 2));
 
-    ///////////////!!!!!!!!!!!!!
+    // Вычисляем новый пеленг относительно центра круга, используя арктангенс,
+    // чтобы найти угол между вектором от центра круга до цели и осью x.
+    // Обязательно нужно перевести из радианов в градусы и нормализовать его в диапазон от 0 до 360
+    // так как результат мы получим от - 180 до 180
+    bearing = Angle::normalizeAngle360(qRadiansToDegrees(qAtan2(position.y(), position.x())));
+
+    // После обновления позиций добавляем её в историю перемещения цели
+    history.enqueue(position);
+
+    // Так как хранить нам надо 3 последних позиций + текущую(итого 4)
+    // если элементов больше 4 в очереди то удаляем последнию позицию
+    if (history.size() > 4)
+    {
+        history.dequeue();
+    }
 }
 
 QDebug operator<<(QDebug debug, const Target& other)
