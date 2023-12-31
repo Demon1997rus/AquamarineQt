@@ -5,6 +5,7 @@
 #include <QTableView>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QLabel>
 
 #include "models/targettablemodel.h"
 
@@ -20,6 +21,9 @@ signals:
     void allClose();
     void clearImitation();
 
+public slots:
+    void getDataMapWidgetMouseMove(int x, int y, double distance, double bearing);
+
 private:
     void initWidgets();
     void controlPanelSettings();
@@ -31,6 +35,9 @@ private:
     QHBoxLayout* horizontalLayout = Q_NULLPTR;
     QTableView* tableView = Q_NULLPTR;
     TargetTableModel* model = Q_NULLPTR;
+    QLabel* labelMapXY = Q_NULLPTR;
+    QLabel* labelDistance = Q_NULLPTR;
+    QLabel* labelBearing = Q_NULLPTR;
     QPushButton* pbImitation = Q_NULLPTR;
     QPushButton* pbPause = Q_NULLPTR;
     QPushButton* pbClose = Q_NULLPTR;

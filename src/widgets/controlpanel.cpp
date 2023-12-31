@@ -12,6 +12,21 @@ ControlPanel::ControlPanel(QWidget* parent) : QFrame(parent)
 }
 
 /*!
+ * \brief ControlPanel::getDataMapWidgetMouseMove - данные текущего положения курсора на карте
+ * \param x - координата x
+ * \param y - координата y
+ * \param distance - дистанция до центра круга м()
+ * \param bearing - пеленг относительно центра круга(градусы)
+ */
+void ControlPanel::getDataMapWidgetMouseMove(int x, int y, double distance, double bearing)
+{
+    labelMapXY->setText(
+        QString("Текущее положение курсора на карте: x = %1, y = %2").arg(x).arg(y));
+    labelDistance->setText(QString("Дистанция до центра круга (м): %1").arg(distance));
+    labelBearing->setText(QString("Пеленг относительно центра круга (градусы): %1").arg(bearing));
+}
+
+/*!
  * \brief ControlPanel::initWidgets - инициализация виджетов панели управления
  */
 void ControlPanel::initWidgets()
@@ -20,6 +35,9 @@ void ControlPanel::initWidgets()
     horizontalLayout = new QHBoxLayout();
     tableView = new QTableView(this);
     model = new TargetTableModel(this);
+    labelMapXY = new QLabel("Текущее положение курсора на карте: x = 0, y = 0", this);
+    labelDistance = new QLabel("Дистанция до центра круга (м): 0.0", this);
+    labelBearing = new QLabel("Пеленг относительно центра круга (градусы): 0.0", this);
     pbImitation = new QPushButton("Имитация", this);
     pbPause = new QPushButton("Пауза", this);
     pbClose = new QPushButton("Выход", this);
@@ -40,8 +58,14 @@ void ControlPanel::controlPanelSettings()
     // Размер заголовков согласно содержимому
     tableView->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
     tableView->horizontalHeader()->setStretchLastSection(true);
+
+    // Настройки label
+    labelMapXY->setWordWrap(true);
 }
 
+/*!
+ * \brief ControlPanel::setupLayout - установка слоя
+ */
 void ControlPanel::setupLayout()
 {
     // Добавляем кнопки управления на вертикальный слой
@@ -52,8 +76,13 @@ void ControlPanel::setupLayout()
     // Добавляем таблицу с целями на слой
     mainLayout->addWidget(tableView);
 
+    // Добавляем отображения данных с карты
+    mainLayout->addWidget(labelMapXY);
+    mainLayout->addWidget(labelDistance);
+    mainLayout->addWidget(labelBearing);
+
     // Добавляем вертикальный слой с кнопками
-    mainLayout->addLayout(horizontalLayout, 1, 0);
+    mainLayout->addLayout(horizontalLayout, mainLayout->rowCount(), 0);
 
     // Добавляем кнопку "Выход"
     mainLayout->addWidget(pbClose);
@@ -62,6 +91,9 @@ void ControlPanel::setupLayout()
     setLayout(mainLayout);
 }
 
+/*!
+ * \brief ControlPanel::initializingConnections - инициализация connect-ов
+ */
 void ControlPanel::initializingConnections()
 {
     connect(pbImitation, &QPushButton::clicked, [this]() {

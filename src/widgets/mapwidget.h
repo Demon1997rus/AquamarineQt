@@ -5,6 +5,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QTimer>
+#include <QMouseEvent>
 
 #include "utils/randomgenerator.h"
 #include "info/targetrepository.h"
@@ -15,6 +16,9 @@ class MapWidget : public QFrame
 public:
     explicit MapWidget(QWidget* parent = nullptr);
 
+signals:
+    void sendDataMouseMove(int x, int y, double distance, double bearing);
+
 public slots:
     void startImitation();
     void stopImitation();
@@ -22,6 +26,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 private:
     void drawBackground(QPainter& painter);
@@ -29,10 +34,10 @@ private:
     void drawTargets(QPainter& painter);
 
 private:
-    QTimer timer;
+    QTimer timerImitation;
     RandomGenerator randomGenerator;
     TargetRepository& data;
-    int timerCounter = 19;
+    int timerCounterImitation = 19;
     const int stepCircle = 200;
 
 private slots:

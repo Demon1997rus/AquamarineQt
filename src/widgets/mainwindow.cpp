@@ -48,6 +48,7 @@ void MainWindow::setWindowSettings()
 
     // Настройки левой панели
     mapWidget->setFrameStyle(QFrame::StyledPanel | QFrame::Plain);
+    mapWidget->setMouseTracking(true);
 }
 
 /*!
@@ -84,4 +85,7 @@ void MainWindow::initializingConnections()
     connect(controlPanel, &ControlPanel::clearImitation, mapWidget, &MapWidget::clearImitation);
 
     connect(controlPanel, &ControlPanel::allClose, this, &MainWindow::close);
+
+    connect(mapWidget, &MapWidget::sendDataMouseMove, controlPanel,
+            &ControlPanel::getDataMapWidgetMouseMove);
 }

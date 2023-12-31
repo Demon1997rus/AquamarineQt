@@ -7,9 +7,9 @@
 #include "utils/angle.h"
 
 MapWidget::MapWidget(QWidget* parent)
-  : QFrame(parent), timer(this), data(TargetRepository::instance())
+  : QFrame(parent), timerImitation(this), data(TargetRepository::instance())
 {
-    connect(&timer, &QTimer::timeout, this, &MapWidget::updateImitation);
+    connect(&timerImitation, &QTimer::timeout, this, &MapWidget::updateImitation);
 }
 
 /*!
@@ -17,9 +17,9 @@ MapWidget::MapWidget(QWidget* parent)
  */
 void MapWidget::startImitation()
 {
-    if (!timer.isActive())
+    if (!timerImitation.isActive())
     {
-        timer.start(500);
+        timerImitation.start(500);
     }
 }
 
@@ -28,9 +28,9 @@ void MapWidget::startImitation()
  */
 void MapWidget::stopImitation()
 {
-    if (timer.isActive())
+    if (timerImitation.isActive())
     {
-        timer.stop();
+        timerImitation.stop();
     }
 }
 
@@ -40,7 +40,7 @@ void MapWidget::stopImitation()
 void MapWidget::clearImitation()
 {
     data.clear();
-    timerCounter = 19;  // выставляем чтобы после очистки сразу сгенерировалась новая цель
+    timerCounterImitation = 19;  // выставляем чтобы после очистки сразу сгенерировалась новая цель
     update();
 }
 
@@ -56,6 +56,35 @@ void MapWidget::paintEvent(QPaintEvent* event)
     painter.rotate(-90);
     drawMap(painter);
     drawTargets(painter);
+}
+
+void MapWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    /*
+     * В правой части окна предусмотреть текстовый вывод текущего положения курсора мыши,
+     * в случае его нахождения на круге,
+     * с информацией, указанной в таблице за исключением номера цели.
+     */
+    QPointF circleCenter(width() / 2, height() / 2);  // центр круга
+    int maxRadius = qMin(width(), height()) / 2;      // максимальный радиус
+    int mouseX = event->x() - circleCenter.x();       // координата X курсора
+    int mouseY = event->y() - circleCenter.y();       // координата Y курсора
+
+    // Расстояния от центра круга
+    double distance = qSqrt(qPow(mouseX, 2) + qPow(mouseY, 2));
+
+    // Пеленг относительно центра круга(градусы)
+    double bearing = Angle::normalizeAngle360(qRadiansToDegrees(qAtan2(mouseY, mouseX)) + 90);
+
+    // В случае его нахождения только на круге!
+    if ((distance < maxRadius) || qFuzzyCompare(distance, maxRadius))
+    {
+        emit sendDataMouseMove(mouseX, -mouseY, distance, bearing);
+    }
+    else
+    {
+        emit sendDataMouseMove(0, 0, 0.0, 0.0);
+    }
 }
 
 /*!
@@ -183,15 +212,15 @@ void MapWidget::drawTargets(QPainter& painter)
  */
 void MapWidget::updateImitation()
 {
-    ++timerCounter;
-    if (timerCounter == 20)
+    ++timerCounterImitation;
+    if (timerCounterImitation == 20)
     {
         /*
          *   В случайном месте в пределах первого внутреннего 200м кольца сначала появляется
          *   одна цель, каждые 10 секунд
          */
         data.generateTarget();
-        timerCounter = 0;
+        timerCounterImitation = 0;
     }
     /*
      *  Каждый цикл обновления информации цель смещается на 20м(!) в произвольном тангенциальном или
