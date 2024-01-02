@@ -2,6 +2,7 @@
 
 #include <QHeaderView>
 #include <QDebug>
+#include <QScrollBar>
 
 ControlPanel::ControlPanel(QWidget* parent) : QFrame(parent)
 {
@@ -24,6 +25,34 @@ void ControlPanel::getDataMapWidgetMouseMove(int x, int y, double distance, doub
         QString("Текущее положение курсора на карте: x = %1, y = %2").arg(x).arg(y));
     labelDistance->setText(QString("Дистанция до центра круга (м): %1").arg(distance));
     labelBearing->setText(QString("Пеленг относительно центра круга (градусы): %1").arg(bearing));
+}
+
+/*!
+ * \brief ControlPanel::getSelectedIdFromMap - выбирает цель в таблице
+ * \param id - идентификатор цели
+ */
+void ControlPanel::getSelectedIdFromMap(int id)
+{
+    int rowCount = model->rowCount(QModelIndex());
+    for (int row = 0; row < rowCount; ++row)
+    {
+        QModelIndex index = model->index(row, 0);
+        if (!index.isValid())
+        {
+            return;
+        }
+        if (index.data().toInt() == id)
+        {
+            tableView->clearSelection();  // Снимаем выделение со всех строк
+            tableView->selectRow(row);  // Выделяем строку, соответствующую выбранной целиы
+            if (!tableView->visualRect(index).isValid())
+            {
+                int scrollPosition = row - rowCount / 2;  // Вычисляем позицию прокрутки
+                tableView->verticalScrollBar()->setValue(scrollPosition);  // Прокручиваем таблицу к
+                                                                           // выбранной цели
+            }
+        }
+    }
 }
 
 /*!

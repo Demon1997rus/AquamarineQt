@@ -24,6 +24,7 @@ signals:
 
 public slots:
     void getDataMapWidgetMouseMove(int x, int y, double distance, double bearing);
+    void getSelectedIdFromMap(int id);
 
 private:
     void initWidgets();

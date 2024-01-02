@@ -21,6 +21,7 @@ public:
     void updateTargets();
     const Target& at(int index) const;
     void clear();
+    QVector<Target>& getTargets();
     const QVector<Target>& getTargets() const;
     int size() const;
     void offFlashState();

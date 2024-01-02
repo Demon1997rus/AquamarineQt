@@ -18,16 +18,18 @@ public:
 
 signals:
     void sendDataMouseMove(int x, int y, double distance, double bearing);
+    void sendSelectedId(int id);
 
 public slots:
     void startImitation();
     void stopImitation();
     void clearImitation();
-    void getSelectedId(int id);
+    void getSelectedIdFromTable(int id);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     void drawBackground(QPainter& painter);
@@ -35,13 +37,15 @@ private:
     void drawTargets(QPainter& painter);
 
 private:
-    QTimer timerImitation;
-    QTimer timerFlashState;
-    RandomGenerator randomGenerator;
-    TargetRepository& data;
-    int timerCounterImitation = 19;
-    const int stepCircle = 200;
-    int currentTargetId = 0;
+    QTimer timerImitation;  //таймер для обновления информаций на экране
+    QTimer timerFlashState;           // таймер для мигания
+    RandomGenerator randomGenerator;  // генератор рандомныъ значений
+    TargetRepository& data;           // репозиторий с целями
+    int timerCounterImitation = 19;   // счетчик таймера имитации
+    const int stepCircle = 200;       // шаг круга
+    int currentTargetId = 0;  // текущий выбраннный идентификатор цели
+    double sideLength = 15.0;  // Размер стороны равнобедренного треугольника
+    double sharpAngle = 30.0;  // Острый угол цели
 
 private slots:
     void updateImitation();

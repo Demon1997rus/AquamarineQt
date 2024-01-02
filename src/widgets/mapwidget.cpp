@@ -49,7 +49,7 @@ void MapWidget::clearImitation()
     update();
 }
 
-void MapWidget::getSelectedId(int id)
+void MapWidget::getSelectedIdFromTable(int id)
 {
     if (id == currentTargetId)
     {
@@ -60,6 +60,7 @@ void MapWidget::getSelectedId(int id)
         currentTargetId = id;
     }
     data.offFlashState();
+    update();
 }
 
 void MapWidget::paintEvent(QPaintEvent* event)
@@ -102,6 +103,34 @@ void MapWidget::mouseMoveEvent(QMouseEvent* event)
     else
     {
         emit sendDataMouseMove(0, 0, 0.0, 0.0);
+    }
+}
+
+void MapWidget::mousePressEvent(QMouseEvent* event)
+{
+    /*
+     * Аналогично, при выборе цели на круговом индикаторе она должна выделяться в таблице, и,
+     * в случае если цель находится за пределами отображаемой части таблицы, таблица должна
+     * «прокрутиться» так, чтобы цель была расположена по центру таблицы.
+     */
+    QPointF circleCenter(width() / 2, height() / 2);  // центр круга
+    int mouseX = event->x() - circleCenter.x();       // координата X курсора
+    int mouseY = event->y() - circleCenter.y();       // координата Y курсора
+
+    // Перевод на координаты отрисовки цели
+    qSwap(mouseX, mouseY);
+    mouseX = -mouseX;
+
+    for (const Target& target : data.getTargets())
+    {
+        const QPointF& positionTarget = target.getPosition();
+        QPointF tempPointMouse(mouseX - positionTarget.x(), mouseY - positionTarget.y());
+        if (target.getTriangle().containsPoint(tempPointMouse, Qt::OddEvenFill))
+        {
+            // Отправляю выбранный идентификатор на карте
+            sendSelectedId(target.getId());
+            return;
+        }
     }
 }
 
@@ -171,8 +200,19 @@ void MapWidget::drawTargets(QPainter& painter)
     //               |
     //              S(-x)
 
-    for (const Target& target : data.getTargets())
+    for (Target& target : data.getTargets())
     {
+        /*
+         *  Должна отображаться трасса цели в виде отрезков, соединяющих 3 последних
+         *  положения цели (по аналогии с игрой «змейка»)
+         */
+        painter.setPen(target.getColor());
+        const QQueue<QPointF>& history = target.getHistory();
+        for (int i = 1; i < history.size(); ++i)
+        {
+            painter.drawLine(history.at(i - 1), history.at(i));
+        }
+
         /*
             Условно отображаемая равнобедренным треугольником с углами (30,75, 75 градусов)
             При этом острый угол треугольника цели должен быть направлен в сторону ее движения.
@@ -184,7 +224,7 @@ void MapWidget::drawTargets(QPainter& painter)
 
         if (target.getFlashState())
         {
-            painter.setBrush(Qt::red);
+            painter.setBrush(Qt::black);
         }
         else
         {
@@ -192,8 +232,6 @@ void MapWidget::drawTargets(QPainter& painter)
         }
 
         // За вершину треугольника с острым углом, я буду принимать позицию цели
-        double sharpAngle = 30.0;  // Острый угол
-        double sideLength = 15.0;  // Размер стороны равнобедренного треугольника
         double offset = (360 - sharpAngle) / 2;  // Смещение от острого угла
 
         // Далее мы получаем угол (смещение + направление цели) + нормализация углов, а то выйдем за
@@ -214,22 +252,11 @@ void MapWidget::drawTargets(QPainter& painter)
         point3.setX(qCos(qDegreesToRadians(angle2)) * sideLength);
         point3.setY(qSin(qDegreesToRadians(angle2)) * sideLength);
 
-        painter.drawPolygon(QPolygonF() << point1 << point2 << point3);
-
+        QPolygonF triangle;
+        triangle << point1 << point2 << point3;
+        painter.drawPolygon(triangle);
+        target.setTriangle(qMove(triangle));
         painter.restore();
-
-        /*
-         *  Должна отображаться трасса цели в виде отрезков, соединяющих 3 последних
-         *  положения цели (по аналогии с игрой «змейка»)
-         */
-        painter.setPen(target.getColor());
-        const QQueue<QPointF>& history = target.getHistory();
-        for (int i = 1; i < history.size(); ++i)
-        {
-            painter.save();
-            painter.drawLine(history.at(i - 1), history.at(i));
-            painter.restore();
-        }
     }
 }
 

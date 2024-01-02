@@ -51,6 +51,8 @@ void TargetRepository::clear()
     emit updateRepository();
 }
 
+QVector<Target>& TargetRepository::getTargets() { return targets; }
+
 const QVector<Target>& TargetRepository::getTargets() const { return targets; }
 
 int TargetRepository::size() const { return targets.size(); }

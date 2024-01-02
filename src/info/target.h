@@ -5,6 +5,7 @@
 #include <QPointF>
 #include <QQueue>
 #include <QDebug>
+#include <QPolygonF>
 
 /*!
  * \brief The Target class - класс цели
@@ -30,6 +31,9 @@ public:
     const QQueue<QPointF>& getHistory() const;
     bool getFlashState() const;
     void setFlashState(bool value);
+    const QPolygonF& getTriangle() const;
+    void setTriangle(const QPolygonF& value);
+    void setTriangle(QPolygonF&& value) Q_DECL_NOTHROW;
 
     // Изменение состояние объекта
 public:
@@ -49,6 +53,7 @@ private:
     QPointF position;         // Текущая позиция
     QQueue<QPointF> history;  // История перемещения
     bool flashState;          // Состояние мерцания
+    QPolygonF triangle;       // Последний отрисованный треугольник
 
 private:
     /*

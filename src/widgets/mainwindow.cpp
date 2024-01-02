@@ -89,5 +89,9 @@ void MainWindow::initializingConnections()
     connect(mapWidget, &MapWidget::sendDataMouseMove, controlPanel,
             &ControlPanel::getDataMapWidgetMouseMove);
 
-    connect(controlPanel, &ControlPanel::sendSelectedId, mapWidget, &MapWidget::getSelectedId);
+    connect(controlPanel, &ControlPanel::sendSelectedId, mapWidget,
+            &MapWidget::getSelectedIdFromTable);
+
+    connect(mapWidget, &MapWidget::sendSelectedId, controlPanel,
+            &ControlPanel::getSelectedIdFromMap);
 }

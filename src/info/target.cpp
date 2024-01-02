@@ -92,6 +92,12 @@ void Target::updatePosition(double newHeading, double length)
     }
 }
 
+const QPolygonF& Target::getTriangle() const { return triangle; }
+
+void Target::setTriangle(const QPolygonF& value) { triangle = value; }
+
+void Target::setTriangle(QPolygonF&& value) Q_DECL_NOTHROW { triangle = qMove(value); }
+
 QDebug operator<<(QDebug debug, const Target& other)
 {
     QDebugStateSaver saver(debug);

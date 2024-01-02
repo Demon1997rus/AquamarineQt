@@ -17,5 +17,6 @@ double RandomGenerator::generateRandomDouble(double min, double max) const
 
 QColor RandomGenerator::generateRandomColor() const
 {
-    return QColor::fromRgb(std::rand() % 256, std::rand() % 256, std::rand() % 256);
+    return QColor::fromRgb(generateRandomInt(80, 255), generateRandomInt(80, 255),
+                           generateRandomInt(80, 255));
 }
