@@ -20,6 +20,7 @@ signals:
     void stopImitation();
     void allClose();
     void clearImitation();
+    void sendSelectedId(int id);
 
 public slots:
     void getDataMapWidgetMouseMove(int x, int y, double distance, double bearing);

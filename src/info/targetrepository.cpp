@@ -55,6 +55,27 @@ const QVector<Target>& TargetRepository::getTargets() const { return targets; }
 
 int TargetRepository::size() const { return targets.size(); }
 
+void TargetRepository::offFlashState()
+{
+    for (Target& target : targets)
+    {
+        target.setFlashState(false);
+    }
+    emit updateRepository();
+}
+
+Target* TargetRepository::findTargetById(int id)
+{
+    for (Target& target : targets)
+    {
+        if (target.getId() == id)
+        {
+            return &target;
+        }
+    }
+    return nullptr;
+}
+
 void TargetRepository::sortingByDistance()
 {
     qSort(targets.begin(), targets.end(), [](const Target& first, const Target& second) {

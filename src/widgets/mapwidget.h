@@ -23,6 +23,7 @@ public slots:
     void startImitation();
     void stopImitation();
     void clearImitation();
+    void getSelectedId(int id);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -35,13 +36,16 @@ private:
 
 private:
     QTimer timerImitation;
+    QTimer timerFlashState;
     RandomGenerator randomGenerator;
     TargetRepository& data;
     int timerCounterImitation = 19;
     const int stepCircle = 200;
+    int currentTargetId = 0;
 
 private slots:
     void updateImitation();
+    void updateFlashState();
 };
 
 #endif  // MAPWIDGET_H

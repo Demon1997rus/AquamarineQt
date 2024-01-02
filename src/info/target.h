@@ -28,6 +28,8 @@ public:
     const QColor& getColor() const;
     const QPointF& getPosition() const;
     const QQueue<QPointF>& getHistory() const;
+    bool getFlashState() const;
+    void setFlashState(bool value);
 
     // Изменение состояние объекта
 public:
@@ -46,11 +48,12 @@ private:
     QColor color;    // Цвет корабля
     QPointF position;         // Текущая позиция
     QQueue<QPointF> history;  // История перемещения
+    bool flashState;          // Состояние мерцания
 
 private:
     /*
-        "На всякий случай" - если считать что идентификаторы выдаются раз в 10 секунд, то закончатся
-       они через 58496450 тысяч лет)
+        "На всякий случай" - если считать что идентификаторы выдаются раз в 10 секунд, то
+       закончатся они через 58496450 тысяч лет)
     */
     static unsigned long long int ID;  // Выдача уникального идентификатора
 };

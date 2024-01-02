@@ -23,6 +23,8 @@ public:
     void clear();
     const QVector<Target>& getTargets() const;
     int size() const;
+    void offFlashState();
+    Target* findTargetById(int id);
 
 signals:
     void updateRepository();

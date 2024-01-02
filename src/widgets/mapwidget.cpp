@@ -7,9 +7,13 @@
 #include "utils/angle.h"
 
 MapWidget::MapWidget(QWidget* parent)
-  : QFrame(parent), timerImitation(this), data(TargetRepository::instance())
+  : QFrame(parent), timerImitation(this), timerFlashState(this), data(TargetRepository::instance())
 {
     connect(&timerImitation, &QTimer::timeout, this, &MapWidget::updateImitation);
+
+    connect(&timerFlashState, &QTimer::timeout, this, &MapWidget::updateFlashState);
+
+    timerFlashState.start(200);
 }
 
 /*!
@@ -41,7 +45,21 @@ void MapWidget::clearImitation()
 {
     data.clear();
     timerCounterImitation = 19;  // выставляем чтобы после очистки сразу сгенерировалась новая цель
+    currentTargetId = 0;
     update();
+}
+
+void MapWidget::getSelectedId(int id)
+{
+    if (id == currentTargetId)
+    {
+        currentTargetId = 0;
+    }
+    else
+    {
+        currentTargetId = id;
+    }
+    data.offFlashState();
 }
 
 void MapWidget::paintEvent(QPaintEvent* event)
@@ -163,11 +181,19 @@ void MapWidget::drawTargets(QPainter& painter)
         painter.translate(target.getPosition());
 
         painter.setPen(target.getColor());
-        painter.setBrush(target.getColor());
+
+        if (target.getFlashState())
+        {
+            painter.setBrush(Qt::red);
+        }
+        else
+        {
+            painter.setBrush(target.getColor());
+        }
 
         // За вершину треугольника с острым углом, я буду принимать позицию цели
         double sharpAngle = 30.0;  // Острый угол
-        double sideLength = 10.0;  // Размер стороны равнобедренного треугольника
+        double sideLength = 15.0;  // Размер стороны равнобедренного треугольника
         double offset = (360 - sharpAngle) / 2;  // Смещение от острого угла
 
         // Далее мы получаем угол (смещение + направление цели) + нормализация углов, а то выйдем за
@@ -228,5 +254,31 @@ void MapWidget::updateImitation()
      * треугольника цели должен быть направлен в сторону ее движения.
      */
     data.updateTargets();
+    update();
+}
+
+/*!
+ * \brief MapWidget::updateFlashState - обновления состояния мерцания
+ */
+void MapWidget::updateFlashState()
+{
+    /*
+     * При выборе цели в таблице соответствующая ей на экране цель должна начать мигать с
+     * частотой 5Гц. Трасса цели при этом мигать не должна.
+     */
+
+    // 1) Если идентификатор равен нулю, то такой цели не существует сразу выходим
+    if (currentTargetId == 0)
+        return;
+
+    // Ищем цель в репозиторий по идентификатору
+    Target* target = data.findTargetById(currentTargetId);
+    if (!target)
+        return;
+
+    // инвертируем состояния мерцания
+    target->setFlashState(!target->getFlashState());
+
+    //перерисовываем
     update();
 }

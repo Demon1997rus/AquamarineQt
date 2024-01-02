@@ -6,7 +6,7 @@
 unsigned long long int Target::ID = 0;
 
 Target::Target(double _distance, double _heading, double _bearing, const QColor& _color)
-  : distance(_distance), heading(_heading), bearing(_bearing), color(_color)
+  : distance(_distance), heading(_heading), bearing(_bearing), color(_color), flashState(false)
 {
     id = ++ID;
     position.setX(qCos(qDegreesToRadians(bearing)) * distance);
@@ -27,6 +27,7 @@ Target& Target::operator=(const Target& other)
     color = other.color;
     position = other.position;
     history = other.history;
+    flashState = other.flashState;
     return *this;
 }
 
@@ -39,6 +40,7 @@ Target& Target::operator=(Target&& other) Q_DECL_NOTHROW
     color = qMove(other.color);
     position = other.position;
     history = qMove(other.history);
+    flashState = other.flashState;
     return *this;
 }
 
@@ -55,6 +57,10 @@ const QColor& Target::getColor() const { return color; }
 const QPointF& Target::getPosition() const { return position; }
 
 const QQueue<QPointF>& Target::getHistory() const { return history; }
+
+bool Target::getFlashState() const { return flashState; }
+
+void Target::setFlashState(bool value) { flashState = value; }
 
 void Target::resetCounter() { ID = 0; }
 
@@ -97,5 +103,6 @@ QDebug operator<<(QDebug debug, const Target& other)
     debug << "Цвет:" << other.color;
     debug << "Текущая позиция:" << other.position;
     debug << "История перемещения:" << other.history;
+    debug << "Состояние мерцания:" << other.flashState;
     return debug;
 }

@@ -96,12 +96,12 @@ void ControlPanel::setupLayout()
  */
 void ControlPanel::initializingConnections()
 {
-    connect(pbImitation, &QPushButton::clicked, [this]() {
+    connect(pbImitation, &QPushButton::clicked, [this]() -> void {
         pbImitation->setEnabled(false);
         pbPause->setEnabled(true);
     });
 
-    connect(pbPause, &QPushButton::clicked, [this]() {
+    connect(pbPause, &QPushButton::clicked, [this]() -> void {
         pbImitation->setEnabled(true);
         pbPause->setEnabled(false);
     });
@@ -113,4 +113,17 @@ void ControlPanel::initializingConnections()
     connect(pbClose, &QPushButton::clicked, this, &ControlPanel::allClose);
 
     connect(pbClearImitation, &QPushButton::clicked, this, &ControlPanel::clearImitation);
+
+    connect(tableView, &QTableView::clicked, [this](const QModelIndex& index) -> void {
+        if (!index.isValid())
+            return;
+        QVariant value = model->index(index.row(), 0).data();
+        if (!value.isValid())
+            return;
+        bool ok;
+        int id = value.toInt(&ok);
+        if (!ok)
+            return;
+        emit sendSelectedId(id);
+    });
 }
