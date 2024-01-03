@@ -34,8 +34,10 @@ private:
     void sortingByDistance();
 
 private:
-    TargetRepository() = default;
     Q_DISABLE_COPY(TargetRepository)
+    TargetRepository() = default;
+
+private:
     QVector<Target> targets;
     RandomGenerator randomGenerator;
 };

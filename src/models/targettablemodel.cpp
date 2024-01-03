@@ -1,7 +1,5 @@
 #include "targettablemodel.h"
 
-#include <QDebug>
-
 TargetTableModel::TargetTableModel(QObject* parent)
   : QAbstractTableModel(parent), m_data(TargetRepository::instance())
 {

@@ -2,11 +2,9 @@
 #include <QDir>
 #include <QLockFile>
 #include <QMessageBox>
-#include <QDebug>
 
 #include "widgets/mainwindow.h"
 #include "utils/frameless.h"
-#include "info/targetrepository.h"
 
 int main(int argc, char* argv[])
 {

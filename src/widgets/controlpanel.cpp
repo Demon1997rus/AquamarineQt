@@ -1,7 +1,6 @@
 #include "controlpanel.h"
 
 #include <QHeaderView>
-#include <QDebug>
 #include <QScrollBar>
 
 ControlPanel::ControlPanel(QWidget* parent) : QFrame(parent)
@@ -28,7 +27,7 @@ void ControlPanel::getDataMapWidgetMouseMove(int x, int y, double distance, doub
 }
 
 /*!
- * \brief ControlPanel::getSelectedIdFromMap - выбирает цель в таблице
+ * \brief ControlPanel::getSelectedIdFromMap - выбирает цель в таблице и отображает её по центру
  * \param id - идентификатор цели
  */
 void ControlPanel::getSelectedIdFromMap(int id)
@@ -44,12 +43,12 @@ void ControlPanel::getSelectedIdFromMap(int id)
         if (index.data().toInt() == id)
         {
             tableView->clearSelection();  // Снимаем выделение со всех строк
-            tableView->selectRow(row);  // Выделяем строку, соответствующую выбранной целиы
+            tableView->selectRow(row);  // Выделяем строку, соответствующую выбранной цели
             if (!tableView->visualRect(index).isValid())
             {
-                int scrollPosition = row - rowCount / 2;  // Вычисляем позицию прокрутки
-                tableView->verticalScrollBar()->setValue(scrollPosition);  // Прокручиваем таблицу к
-                                                                           // выбранной цели
+                // Прокрутим, чтобы расположить элемент в центре видового экрана.
+                tableView->scrollTo(index, QAbstractItemView::PositionAtCenter);
+                return;
             }
         }
     }

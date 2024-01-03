@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 
-#include <QDebug>
 #include <QStyle>
 #include <QApplication>
 #include <QDesktopWidget>

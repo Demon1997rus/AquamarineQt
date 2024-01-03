@@ -1,8 +1,6 @@
 #include "mapwidget.h"
 
-#include <QDebug>
 #include <QtMath>
-#include <chrono>
 
 #include "utils/angle.h"
 
@@ -45,24 +43,33 @@ void MapWidget::clearImitation()
 {
     data.clear();
     timerCounterImitation = 19;  // выставляем чтобы после очистки сразу сгенерировалась новая цель
-    currentTargetId = 0;
+    currentTargetIdFromTable = 0;
     update();
 }
 
+/*!
+ * \brief MapWidget::getSelectedIdFromTable - выставляет цель для мерцания
+ *
+ * Если идентификатор равен текущему, то текущий идентификатор становится не валиден
+ * \param id - идентификатор цели
+ */
 void MapWidget::getSelectedIdFromTable(int id)
 {
-    if (id == currentTargetId)
+    if (id == currentTargetIdFromTable)
     {
-        currentTargetId = 0;
+        currentTargetIdFromTable = 0;
     }
     else
     {
-        currentTargetId = id;
+        currentTargetIdFromTable = id;
     }
     data.offFlashState();
     update();
 }
 
+/*!
+ * \brief MapWidget::paintEvent - логика отрисовки карты, целей и шумовой картины
+ */
 void MapWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
@@ -77,6 +84,9 @@ void MapWidget::paintEvent(QPaintEvent* event)
     drawTargets(painter);
 }
 
+/*!
+ * \brief MapWidget::mouseMoveEvent - логика вывода данных текущего положения мыши на карте
+ */
 void MapWidget::mouseMoveEvent(QMouseEvent* event)
 {
     /*
@@ -106,6 +116,9 @@ void MapWidget::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
+/*!
+ * \brief MapWidget::mousePressEvent - логика выбора цели на карте
+ */
 void MapWidget::mousePressEvent(QMouseEvent* event)
 {
     /*
@@ -127,15 +140,15 @@ void MapWidget::mousePressEvent(QMouseEvent* event)
         QPointF tempPointMouse(mouseX - positionTarget.x(), mouseY - positionTarget.y());
         if (target.getTriangle().containsPoint(tempPointMouse, Qt::OddEvenFill))
         {
-            // Отправляю выбранный идентификатор на карте
-            sendSelectedId(target.getId());
+            // Отправляю выбранный идентификатор на карте в правую панель
+            emit sendSelectedId(target.getId());
             return;
         }
     }
 }
 
 /*!
- * \brief MapWidget::drawBackground - рисование фона карты
+ * \brief MapWidget::drawBackground - отрисовка шумовой картины
  */
 void MapWidget::drawBackground(QPainter& painter)
 {
@@ -153,7 +166,7 @@ void MapWidget::drawBackground(QPainter& painter)
 }
 
 /*!
- * \brief MapWidget::drawMap - отрисовка карты
+ * \brief MapWidget::drawMap - отрисовка карты с линиями
  */
 void MapWidget::drawMap(QPainter& painter)
 {
@@ -295,11 +308,11 @@ void MapWidget::updateFlashState()
      */
 
     // 1) Если идентификатор равен нулю, то такой цели не существует сразу выходим
-    if (currentTargetId == 0)
+    if (currentTargetIdFromTable == 0)
         return;
 
     // Ищем цель в репозиторий по идентификатору
-    Target* target = data.findTargetById(currentTargetId);
+    Target* target = data.findTargetById(currentTargetIdFromTable);
     if (!target)
         return;
 

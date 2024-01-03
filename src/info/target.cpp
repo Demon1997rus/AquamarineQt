@@ -28,6 +28,7 @@ Target& Target::operator=(const Target& other)
     position = other.position;
     history = other.history;
     flashState = other.flashState;
+    triangle = other.triangle;
     return *this;
 }
 
@@ -41,6 +42,7 @@ Target& Target::operator=(Target&& other) Q_DECL_NOTHROW
     position = other.position;
     history = qMove(other.history);
     flashState = other.flashState;
+    triangle = qMove(other.triangle);
     return *this;
 }
 
@@ -110,5 +112,6 @@ QDebug operator<<(QDebug debug, const Target& other)
     debug << "Текущая позиция:" << other.position;
     debug << "История перемещения:" << other.history;
     debug << "Состояние мерцания:" << other.flashState;
+    debug << "Отрисованный треугольник:" << other.triangle;
     return debug;
 }

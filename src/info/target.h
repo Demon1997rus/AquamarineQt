@@ -32,13 +32,13 @@ public:
     bool getFlashState() const;
     void setFlashState(bool value);
     const QPolygonF& getTriangle() const;
-    void setTriangle(const QPolygonF& value);
-    void setTriangle(QPolygonF&& value) Q_DECL_NOTHROW;
 
     // Изменение состояние объекта
 public:
     static void resetCounter();
     void updatePosition(double newHeading, double length);
+    void setTriangle(const QPolygonF& value);
+    void setTriangle(QPolygonF&& value) Q_DECL_NOTHROW;
 
     // friend
 public:

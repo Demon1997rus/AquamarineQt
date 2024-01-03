@@ -3,13 +3,16 @@
 
 #include <QFrame>
 #include <QPaintEvent>
-#include <QPainter>
 #include <QTimer>
+#include <QPainter>
 #include <QMouseEvent>
 
 #include "utils/randomgenerator.h"
 #include "info/targetrepository.h"
 
+/*!
+ * \brief The MapWidget class - карта для отрисовки целей
+ */
 class MapWidget : public QFrame
 {
     Q_OBJECT
@@ -39,11 +42,11 @@ private:
 private:
     QTimer timerImitation;  //таймер для обновления информаций на экране
     QTimer timerFlashState;           // таймер для мигания
-    RandomGenerator randomGenerator;  // генератор рандомныъ значений
+    RandomGenerator randomGenerator;  // генератор рандомных значений
     TargetRepository& data;           // репозиторий с целями
     int timerCounterImitation = 19;   // счетчик таймера имитации
     const int stepCircle = 200;       // шаг круга
-    int currentTargetId = 0;  // текущий выбраннный идентификатор цели
+    int currentTargetIdFromTable = 0;  // текущий выбраннный идентификатор цели с таблицы
     double sideLength = 15.0;  // Размер стороны равнобедренного треугольника
     double sharpAngle = 30.0;  // Острый угол цели
 

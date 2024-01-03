@@ -1,14 +1,14 @@
-#pragma once
+#ifndef FRAMELESS_H
+#define FRAMELESS_H
 
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QRubberBand>
-#include <QtCore/QObject>
-#include <QtCore/QEvent>
-#include <QtCore/QRect>
-#include <QtCore/QPoint>
-#include <QtCore/Qt>
-#include <QtGui/QHoverEvent>
-#include <QtGui/QMouseEvent>
+#include <QWidget>
+#include <QRubberBand>
+#include <QObject>
+#include <QEvent>
+#include <QPoint>
+#include <QEvent>
+#include <QHoverEvent>
+#include <QMouseEvent>
 
 /*!
  * \brief The FrameLess class - утилита для изменения стандартного виджета
@@ -64,3 +64,5 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(FrameLess::Edges);
+
+#endif  // FRAMELESS_H
